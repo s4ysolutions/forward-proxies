@@ -1,1 +1,20 @@
+name: forward-proxies
+on: 
+  - push
+  - repository_dispatch
+jobs:
+  tinyproxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cd tinyproxy
+          docker build -t ${{ secrets.DOCKER_ORG }}/tinyproxy .
+          docker login -u ${{ secrets.DOCKERHUB_USER }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+          docker push ${{ secrets.DOCKER_ORG }}/tinyproxy
 
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: tinyproxy
+          publish-profile: ${{ secrets.AZURE_PROFILE }}
+        
